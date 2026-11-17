@@ -5,11 +5,19 @@ import os
 from email.message import EmailMessage
 from dotenv import load_dotenv
 
+# Imports pour la BDD MongoDB
+from pymongo.errors import PyMongoError
+from base import connexion, preparer
+from mesure import enregistrer
+
+# Charge les variables cachées dans le fichier .env (mots de passe, adresses)
 load_dotenv()
 
-# 2. Définition de la fonction d'envoi d'email
-def envoyer_alerte(type_alerte, valeur, seuil):
 
+# GESTION DES ALERTES 
+
+# Définition de la fonction d'envoi d'email
+def envoyer_alerte(type_alerte, valeur, seuil):
     msg = EmailMessage()
     texte_alerte = f"L'alerte '{type_alerte}' a été déclenchée.\nValeur relevée : {valeur}\nSeuil autorisé : {seuil}"
     msg.set_content(texte_alerte)
@@ -24,28 +32,37 @@ def envoyer_alerte(type_alerte, valeur, seuil):
         s.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
         s.send_message(msg)
         s.quit()
-        print(f"📧 ✅ Email d'alerte envoyé pour : {type_alerte}")
+        print(f"Email d'alerte envoyé pour : {type_alerte}")
 
 
 
+# CONNEXION AUX SERVEURS
 
 def on_connect(client, userdata, flags, reason_code, properties):
     print(f"Connected with result code {reason_code}")
 
     client.subscribe(os.getenv("MQTT_TOPIC"))
 
+# Connexion à MongoDB
+try:
+    db = connexion()
+    preparer(db) # Pour les anti-doublon
+except PyMongoError as e:
+    print(f"Erreur de démarrage MongoDB : {e}")
+
 
 def on_message(client, userdata, msg):
     print("Topic     : " + msg.topic)
 
+    # Lit le message reçu par l'antenne
     texte_decode = msg.payload.decode("utf-8")
-
     donnees = json.loads(texte_decode)
-
     print("Données décodées :", donnees)
 
+    # Extrait la longue chaîne de caractères hexadécimaux
     payload = donnees["payload"]
 
+    # DÉCODAGE MANUEL : Découpe le payload morceau par morceau pour retrouver les vrais chiffres
     bloc_ID1 = payload[0:2]
     decoded_Id1 = int(bloc_ID1, 16)
     print(f"{decoded_Id1} ID")
@@ -98,6 +115,7 @@ def on_message(client, userdata, msg):
     decoded_cumulative_rainfall = int(bloc_cumulative_rainfall, 16)
     print(f"Cumulative Rainfall : { decoded_cumulative_rainfall / 10.0 } mm")
 
+    # Reforme un dictionnaire clair avec les unités
     donnees_decodes = {
         "Air Temperature" : f"{decode_temperature / 10.0} ℃",
         "Air Humidity" : f"{decode_Humidity / 10.0} % RH",
@@ -111,18 +129,17 @@ def on_message(client, userdata, msg):
         "Cumulative Rainfall" : f"{decoded_cumulative_rainfall / 10.0} mm"
     }
 
-    # 1. On récupère les seuils du .env en forçant le format décimal (float)
+    # Récupère les seuils du .env en forçant le format décimal (float)
     seuil_chaleur = float(os.getenv("ALERTE_CHALEUR"))
     seuil_froid = float(os.getenv("ALERTE_FROID"))
     seuil_vent = float(os.getenv("ALERTE_VENT"))
     seuil_pluie = float(os.getenv("ALERTE_PLUIE"))
 
-
     temp_actuelle = decode_temperature / 10.0
     vent_actuel = decoded_speed / 10.0
     pluie_actuelle = decoded_cumulative_rainfall / 10.0
 
-    # 3. On teste les conditions et on déclenche la fonction d'envoi d'email
+    # Teste les conditions et on déclenche la fonction d'envoi d'email
     if temp_actuelle >= seuil_chaleur:
         envoyer_alerte("Chaleur", temp_actuelle, seuil_chaleur)
 
@@ -138,7 +155,12 @@ def on_message(client, userdata, msg):
     with open("releves_meteo.json", "w", encoding="utf-8") as fichier:
         json.dump(donnees_decodes, fichier, indent=4,  ensure_ascii=False)
 
-
+    # Insertion des données dans MongoDB
+    try:
+        resultat_mongo = enregistrer(db, donnees_decodes)
+        print(f"MongoDB : {resultat_mongo}")
+    except PyMongoError as erreur:
+        print(f"Erreur MongoDB pendant l'insertion : {erreur}")
 
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.on_connect = on_connect
@@ -146,7 +168,6 @@ mqttc.on_message = on_message
 
 broker = os.getenv("MQTT_BROKER")
 port = int(os.getenv("MQTT_PORT"))
-
 
 mqttc.connect(broker, port, 60)
 mqttc.loop_forever()

@@ -1,1 +1,9 @@
+# Fichiers contenant des mots de passe ou des brouillons
 .env
+essais.py
+
+# Dossiers lourds ou inutiles pour GitHub
+.venv/
+__pycache__/
+.idea/
+.vscode/
