@@ -1,12 +1,12 @@
 {
-    "Air Temperature": "12.9 ℃",
-    "Air Humidity": "7.1 % RH",
-    "Light Intensity": "14849 Lux",
-    "UV Index": "1.1 UV",
-    "Wind Speed": "1.6 m/s",
-    "Wind Direction": "6.0 °",
+    "Air Temperature": "13.5 ℃",
+    "Air Humidity": "6.9 % RH",
+    "Light Intensity": "6123 Lux",
+    "UV Index": "0.0 UV",
+    "Wind Speed": "1.0 m/s",
+    "Wind Direction": "10.2 °",
     "Rainfall Intensity": "0.0 mm/hour",
-    "Barometric Pressure": "9966Pa",
-    "Peak Wind Gust": "2.4 m/s",
+    "Barometric Pressure": "9971Pa",
+    "Peak Wind Gust": "3.2 m/s",
     "Cumulative Rainfall": "1524.0 mm"
 }
