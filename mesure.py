@@ -68,8 +68,8 @@ def convertir(donnees_brutes):
 
         # Référence (qui fera sonner l'alarme au dessus car elle a moins de 16 caractères)
         "reference_capteur": reference,
-        # Date fixe pour tester s'il y a un doublon
-        "instant_mesure": datetime(2026, 11, 17, 12, 0, 0, tzinfo=timezone.utc),
+        
+        "instant_mesure": datetime.now(timezone.utc),
         
         # Données converties
 

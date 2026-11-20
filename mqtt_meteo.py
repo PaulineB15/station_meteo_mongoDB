@@ -59,8 +59,12 @@ def on_message(client, userdata, msg):
     donnees = json.loads(texte_decode)
     print("Données décodées :", donnees)
 
-    # Extrait la longue chaîne de caractères hexadécimaux
-    payload = donnees["payload"]
+
+    # Récupère "payloadHex" (station) ou "payload" (ancien format)
+    payload = donnees.get("payloadHex") or donnees.get("payload")
+    if not payload:
+        print("Message ignoré (pas de payload).")
+        return
 
     # DÉCODAGE MANUEL : Découpe le payload morceau par morceau pour retrouver les vrais chiffres
     bloc_ID1 = payload[0:2]
