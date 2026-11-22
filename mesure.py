@@ -56,10 +56,10 @@ def nettoyer(texte_brut, symbole, nom_champ, entier=False):
 # Fonction principale : Transforme releves_meteo.json pour la BDD MongoDB
 def convertir(donnees_brutes):
 
-    # Fausse référence pour le test (16 caractères)
-    reference = "TEST1234567890AB"
+    # Référence du capteur (16 caractères)
+    reference = "9B85D927590B5B28"
 
-    # Si la référence ne fait pas 16 caractères = l'alarme
+    # Si la référence ne fait pas 16 caractères = alarme
     if len(reference) != 16:
         raise ReleveInvalide(f"Identifiant capteur invalide : {reference}")
 
@@ -100,8 +100,6 @@ def journaliser(db, type_evenement, statut, message, detail=None):
         "message": message,
         "detail": detail or {}
     })
-
-    
 
 
 # Fonction - appelée à chaque fois que l'antenne MQTT reçoit une donnée en temps réel
