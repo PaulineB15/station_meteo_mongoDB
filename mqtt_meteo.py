@@ -26,13 +26,15 @@ def envoyer_alerte(type_alerte, valeur, seuil):
     msg['From'] = os.getenv("EMAIL_SENDER")
     msg['To'] = os.getenv("EMAIL_RECEIVER")
 
-    if True:
+    try:
         s = smtplib.SMTP('smtp.gmail.com', 587)
         s.starttls()
         s.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
         s.send_message(msg)
         s.quit()
         print(f"Email d'alerte envoyé pour : {type_alerte}")
+    except Exception as e:
+        print(f"Impossible d'envoyer l'email d'alerte ({type_alerte}) : {e}")
 
 
 
