@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import PyMongoError
 
-# Se connecte à Atlas et renvoie la base station_meteo.
+# Se connecte à Atlas et renvoie la BDD Mongo station_meteo.
 def connexion():
    
     load_dotenv()
@@ -22,7 +22,7 @@ def connexion():
                  
     return client[os.getenv("MONGODB_BASE", "station_meteo")]
 
-# Créer l'index unique pour empêcher les doublons.
+# Index unique pour empêcher les doublons.
 def preparer(db):
   
     db.mesures.create_index(
