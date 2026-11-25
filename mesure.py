@@ -75,13 +75,13 @@ def convertir(donnees_brutes):
 
         # Exemple : "Air Temperature", on enlève "℃", et on l'appelle "temperature"
         "temperature": nettoyer(donnees_brutes.get("Air Temperature"), "℃", "temperature"),
-        "humidite": nettoyer(donnees_brutes.get("Air Humidity"), "% RH", "humidite"),
+        "humidite": nettoyer(donnees_brutes.get("Air Humidity"), "%", "humidite", entier=True),
         "luminosite": nettoyer(donnees_brutes.get("Light Intensity"), "Lux", "luminosite", entier=True),
         "indice_uv": nettoyer(donnees_brutes.get("UV Index"), "UV", "indice_uv"),
         "vent_vitesse": nettoyer(donnees_brutes.get("Wind Speed"), "m/s", "vent_vitesse"),
         "vent_direction": nettoyer(donnees_brutes.get("Wind Direction"), "°", "vent_direction", entier=True),
         "precipitation": nettoyer(donnees_brutes.get("Rainfall Intensity"), "mm/hour", "precipitation"),
-        "pression_atmospherique": nettoyer(donnees_brutes.get("Barometric Pressure"), "Pa", "pression_atmospherique"),
+        "pression_atmospherique": nettoyer(donnees_brutes.get("Barometric Pressure"), "hPa", "pression_atmospherique"),
         "rafale_max": nettoyer(donnees_brutes.get("Peak Wind Gust"), "m/s", "rafale_max"),
         "pluie_cumul": nettoyer(donnees_brutes.get("Cumulative Rainfall"), "mm", "pluie_cumul")
     }
